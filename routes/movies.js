@@ -1,6 +1,7 @@
 import express from "express";
 const router = express.Router();
 
+
 router.get("/movies", async function (request, response) {
   const movies = await client
     .db("database1")
