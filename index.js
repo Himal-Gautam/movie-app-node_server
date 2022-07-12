@@ -19,9 +19,7 @@ async function createConnection() {
 }
 
 createConnection();
-import cors from "cors";
 
-app.use(cors());
 app.use(cors());
 app.use(express.json());
 // app.use('/movies', moviesRouter);
@@ -32,6 +30,7 @@ app.get("/", function (request, response) {
 });
 
 app.get("/movies", async function (request, response) {
+  console.log('here');
   const movies = await client
     .db("database1")
     .collection("movies")
@@ -83,7 +82,7 @@ app.post("/movies", async function (request, response) {
   const result = await client
     .db("database1")
     .collection("movies")
-    .insertMany(newMovies);
+    .insertOne(newMovies);
 
   response.send(result);
 });
