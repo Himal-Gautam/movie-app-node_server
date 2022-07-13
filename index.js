@@ -2,8 +2,6 @@ import express from "express";
 import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
 import cors from "cors";
-// import {moviesRouter} from "./routes/movies.js";
-
 
 dotenv.config();
 
@@ -22,7 +20,6 @@ createConnection();
 
 app.use(cors());
 app.use(express.json());
-// app.use('/movies', moviesRouter);
 
 
 app.get("/", function (request, response) {
@@ -30,12 +27,13 @@ app.get("/", function (request, response) {
 });
 
 app.get("/movies", async function (request, response) {
-  console.log('here');
+  console.log('all movies asked');
   const movies = await client
     .db("database1")
     .collection("movies")
     .find({})
     .toArray();
+  
   await response.send(movies);
 });
 
@@ -63,6 +61,7 @@ app.delete("/movies/:id", async function (request, response) {
 });
 
 app.put("/movies/:id", async function (request, response) {
+  console.log('movie update request recieved');
   console.log("request.params", request.params);
   const { id } = request.params;
   const updateData = request.body;
@@ -76,13 +75,13 @@ app.put("/movies/:id", async function (request, response) {
 });
 
 app.post("/movies", async function (request, response) {
-  const newMovies = request.body;
-  console.log(newMovies);
-  // db.movies.insertMany(data)
+  console.log('new movie add request recieved');
+  const newMovie = request.body;
+  console.log(newMovie);
   const result = await client
     .db("database1")
     .collection("movies")
-    .insertOne(newMovies);
+    .insertOne(newMovie);
 
   response.send(result);
 });
