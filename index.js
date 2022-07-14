@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import cors from "cors";
 
 dotenv.config();
@@ -21,69 +21,98 @@ createConnection();
 app.use(cors());
 app.use(express.json());
 
-
 app.get("/", function (request, response) {
   response.send("Hello World");
 });
 
+// Get all the movies route
 app.get("/movies", async function (request, response) {
-  console.log('all movies asked');
-  const movies = await client
-    .db("database1")
-    .collection("movies")
-    .find({})
-    .toArray();
-  
-  await response.send(movies);
+  try {
+    const movies = await client
+      .db("database1")
+      .collection("movies")
+      .find({})
+      .toArray();
+
+    response.send(movies);
+  } catch (error) {
+    response.status(404).send(error);
+  }
 });
 
+// Get specific movie using MongoDb ObjectId route
 app.get("/movies/:id", async function (request, response) {
-  console.log(request.params);
-  const { id } = request.params;
-  const movie = await client
-    .db("database1")
-    .collection("movies")
-    .findOne({ id });
-  movie
-    ? response.send(movie)
-    : response.status(404).send({ message: "No such movie found 😅" });
+  try {
+    // Getting the ObjectID from request parameters
+    const { id } = request.params;
+    // Executing the querry
+    const movie = await client
+      .db("database1")
+      .collection("movies")
+      .findOne({ _id: ObjectId(id) });
+    // sending the response
+    movie
+      ? response.send(movie)
+      : response.status(404).send({ message: "No such movie found 😅" });
+  } catch (error) {
+    response.status(404).send(error);
+  }
 });
 
+// Delete specific movie using MongoDb ObjectId route
 app.delete("/movies/:id", async function (request, response) {
-  console.log("request.params", request.params);
-  const { id } = request.params;
-  const result = await client
-    .db("database1")
-    .collection("movies")
-    .deleteOne({ id: id });
-  console.log(result);
-  response.send(result);
+  try {
+    // Getting the ObjectID from request parameters
+    const { id } = request.params;
+    // Executing the querry
+    const result = await client
+      .db("database1")
+      .collection("movies")
+      .deleteOne({ _id: ObjectId(id) });
+    // sending the response
+    response.send(result);
+  } catch (error) {
+    response.status(404).send(error);
+  }
 });
 
+// Update specific movie using MongoDb ObjectId route
 app.put("/movies/:id", async function (request, response) {
-  console.log('movie update request recieved');
-  console.log("request.params", request.params);
-  const { id } = request.params;
-  const updateData = request.body;
-  const result = await client
-    .db("database1")
-    .collection("movies")
-    .updateOne({ id: id }, { $set: updateData });
-  console.log(result);
-
-  response.send(result);
+  try {
+    // Getting the ObjectID from request parameters
+    const { id } = request.params;
+    // storing the data to update
+    const updateData = request.body;
+    // Executing the querry
+    const result = await client
+      .db("database1")
+      .collection("movies")
+      .updateOne({ _id: ObjectId(id) }, { $set: updateData });
+    // sending the response
+    response.send(result);
+  } catch (error) {
+    response.status(404).send(error);
+  }
 });
 
+// Add a new movie in the collection
 app.post("/movies", async function (request, response) {
-  console.log('new movie add request recieved');
+  try {
+  } catch (error) {
+    response.status(404).send(error);
+  }
+  // storing the data of new movie
   const newMovie = request.body;
-  console.log(newMovie);
+  // Executing the querry
+
   const result = await client
     .db("database1")
     .collection("movies")
     .insertOne(newMovie);
 
+  // sending the response
   response.send(result);
 });
 
+// App  server listens on the PORT
 app.listen(PORT, () => console.log(`Server is started in ${PORT}`));
